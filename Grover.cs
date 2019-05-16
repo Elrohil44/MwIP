@@ -81,7 +81,7 @@ namespace QuantumConsole
 		// single iteration of Grover's algorithm
 		public static void Grover (this QuantumComputer comp, int target, Register x, Register y)
 		{
-			comp.Oracle(target, x, y); 
+			comp.Oracle(target, x, y);			
   			comp.Inversion(x);
 		}		
 		
@@ -114,10 +114,47 @@ namespace QuantumConsole
 			
 			Console.WriteLine("Iterations needed: PI/4 * Sqrt(2^n) = {0}", iterations);
 
+			var probs = x.GetProbabilities();
+			for (ulong i = 0; i < Math.Pow(2, width); i++)
+			{
+				Console.Write(i + ",");
+			}
+			Console.WriteLine();
 			for (int i = 1; i <= iterations; i++)
 			{
-				Console.WriteLine("Iteration #{0}", i);
-				comp.Grover(number, x, y);
+				// Console.WriteLine("Iteration #{0}", i);
+				comp.Oracle(number, x, y);
+				//these Hadamard gates are only for viewing purposes !
+				y.Hadamard(0);
+							
+				// here we can view amplitudes in simulator 
+				// Console.WriteLine("After Oracle:");
+				var amplitudes = x.GetAmplitudes();
+				for (ulong j = 0; j < Math.Pow(2, width); j++)
+				{
+					Console.Write(amplitudes[j].Real.ToString() + ",");
+				}
+				Console.WriteLine();
+							
+				//going back to the algorithm
+				y.Hadamard(0);
+				comp.Inversion(x);
+				//these Hadamard gates are only for viewing purposes !
+							
+				y.Hadamard(0);
+							
+				// here we can view amplitudes in simulator 
+				// Console.WriteLine("After Inverse:");
+				
+				amplitudes = x.GetAmplitudes();
+				for (ulong j = 0; j < Math.Pow(2, width); j++)
+				{
+					Console.Write(amplitudes[j].Real.ToString() + ",");
+				}
+				Console.WriteLine();
+				
+				//going back to the algorithm
+				y.Hadamard(0);
 			}
 		}
 	}
